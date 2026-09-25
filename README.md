@@ -65,7 +65,11 @@ Typical outputs:
 ## Releasing on GitHub
 
 1. Push the repository to GitHub.
-2. Enable **GitHub Pages** → Source: **GitHub Actions** (the `pages.yml` workflow deploys the `website/` folder).
+2. **Enable GitHub Pages (required once per repo).** If deploy fails with `Failed to create deployment (status: 404)`, Pages is not enabled yet:
+   - Open **Settings → Pages** (e.g. `https://github.com/<owner>/Monora/settings/pages`).
+   - Under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+   - Save, then re-run the **Deploy GitHub Pages** workflow (**Actions** tab → workflow → **Run workflow**).
+   - After the first successful deploy, the site is at `https://<owner>.github.io/Monora/`.
 3. Create and push a version tag (must match `version` in `src-tauri/tauri.conf.json`):
 
    ```bash
