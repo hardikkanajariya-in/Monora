@@ -1,0 +1,50 @@
+name: Bug report
+description: Something is not working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug.
+  - type: input
+    id: version
+    attributes:
+      label: Monora / Simple Recorder version
+      placeholder: e.g. v1.0.0 or commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11
+        - Windows 10
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: What did you do before the issue occurred?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Paste relevant lines from `logs/simple-recorder.log` next to the executable (redact paths if needed).
+      render: text

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Monora — lightweight portable Windows screen recorder. Multi-monitor capture, system audio, hardware H.264, no FFmpeg required."
+    />
+    <title>Monora — Screen Recorder for Windows</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23c92a2a' width='32' height='32' rx='4'/><circle fill='%23fff' cx='16' cy='16' r='6'/></svg>" />
+    <link rel="stylesheet" href="css/winclassic.css" />
+  </head>
+  <body>
+    <div class="desktop">
+      <div class="desktop-icons" aria-hidden="true">
+        <div class="desktop-icon">
+          <div class="desktop-icon__img"></div>
+          Monora
+        </div>
+        <div class="desktop-icon">
+          <div class="desktop-icon__img" style="background: linear-gradient(145deg, #ffd43b, #e67700)"></div>
+          Videos
+        </div>
+      </div>
+
+      <main>
+        <article class="win win--wide" id="welcome">
+          <header class="titlebar">
+            <span class="titlebar-icon" aria-hidden="true"></span>
+            <span class="titlebar-text">Monora — Simple Recorder</span>
+            <div class="titlebar-controls" aria-hidden="true">
+              <button type="button" class="titlebar-btn">&#8211;</button>
+              <button type="button" class="titlebar-btn">&#9633;</button>
+              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            </div>
+          </header>
+          <div class="win-body">
+            <p class="lead">
+              <strong>Record your screen like it's 2009 — encode like it's 2026.</strong>
+            </p>
+            <p class="muted">
+              Monora (Simple Recorder) is a portable Windows app built with Tauri and Rust. Capture one or
+              more monitors with system audio and microphone, export H.264 + AAC MP4, and run from a folder —
+              no installer, no FFmpeg bundle, no Python runtime.
+            </p>
+
+            <fieldset class="groupbox">
+              <legend>Download <span class="badge-version" id="release-version">latest</span></legend>
+              <p id="download-status" class="muted">Loading release information…</p>
+              <div class="btn-row">
+                <a
+                  id="download-portable"
+                  class="btn-classic btn-classic--primary disabled"
+                  href="#"
+                  aria-disabled="true"
+                  rel="noopener"
+                >
+                  Portable ZIP
+                </a>
+                <a
+                  id="download-installer"
+                  class="btn-classic disabled"
+                  href="#"
+                  aria-disabled="true"
+                  rel="noopener"
+                >
+                  Setup (NSIS)
+                </a>
+              </div>
+              <p class="footer-links">
+                <a id="releases-fallback" href="https://github.com" hidden>All releases</a>
+                · Requires Windows 10/11 (64-bit) and WebView2
+              </p>
+            </fieldset>
+
+            <div class="btn-row">
+              <a id="github-link" class="btn-classic" href="https://github.com" target="_blank" rel="noopener">View on GitHub</a>
+              <a id="source-link" class="btn-classic" href="https://github.com" target="_blank" rel="noopener">Source code</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="win" id="features">
+          <header class="titlebar">
+            <span class="titlebar-icon" aria-hidden="true"></span>
+            <span class="titlebar-text">Features</span>
+            <div class="titlebar-controls" aria-hidden="true">
+              <button type="button" class="titlebar-btn">&#8211;</button>
+              <button type="button" class="titlebar-btn">&#9633;</button>
+              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            </div>
+          </header>
+          <div class="win-body">
+            <div class="feature-grid">
+              <div class="feature-tile">
+                <strong>Multi-monitor</strong>
+                Windows Graphics Capture for physical displays — combined canvas or separate MP4 per screen.
+              </div>
+              <div class="feature-tile">
+                <strong>Audio</strong>
+                WASAPI loopback for desktop sound plus selectable microphone, mixed with clipping protection.
+              </div>
+              <div class="feature-tile">
+                <strong>Hardware H.264</strong>
+                Media Foundation encoders when your GPU drivers support them; sensible software fallback.
+              </div>
+              <div class="feature-tile">
+                <strong>Portable</strong>
+                Drop the folder anywhere — settings in <code>config/</code>, logs in <code>logs/</code>.
+              </div>
+              <div class="feature-tile">
+                <strong>Tray + hotkey</strong>
+                System tray integration and global <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> to toggle recording.
+              </div>
+              <div class="feature-tile">
+                <strong>Open source</strong>
+                MIT licensed. Built with Tauri 2, Rust, and TypeScript — contributions welcome.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="win" id="specs">
+          <header class="titlebar">
+            <span class="titlebar-icon" aria-hidden="true"></span>
+            <span class="titlebar-text">System requirements</span>
+            <div class="titlebar-controls" aria-hidden="true">
+              <button type="button" class="titlebar-btn">&#8211;</button>
+              <button type="button" class="titlebar-btn">&#9633;</button>
+              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            </div>
+          </header>
+          <div class="win-body">
+            <table class="spec-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>OS</td>
+                  <td>Windows 10 or 11, 64-bit</td>
+                </tr>
+                <tr>
+                  <td>Runtime</td>
+                  <td>WebView2 (usually preinstalled; bootstrapper available in installer build)</td>
+                </tr>
+                <tr>
+                  <td>Output</td>
+                  <td>MP4 (H.264 + AAC) — default folder <code>%USERPROFILE%\Videos\SimpleRecorder\</code></td>
+                </tr>
+                <tr>
+                  <td>Quality</td>
+                  <td>30 / 60 FPS — Balanced, High, Very High presets</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </main>
+    </div>
+
+    <nav class="start-menu" id="start-menu" aria-label="Start menu">
+      <div class="start-menu-header">Monora</div>
+      <div class="start-menu-items">
+        <button type="button" data-scroll="welcome">Download</button>
+        <button type="button" data-scroll="features">Features</button>
+        <button type="button" data-scroll="specs">Requirements</button>
+      </div>
+    </nav>
+
+    <footer class="taskbar">
+      <button type="button" class="start-button" id="start-button" aria-expanded="false" aria-controls="start-menu">
+        <span class="start-flag" aria-hidden="true"></span>
+        Start
+      </button>
+      <div class="taskbar-pins">
+        <span class="taskbar-pin">Monora</span>
+      </div>
+      <div class="taskbar-tray">
+        <span id="taskbar-clock">12:00 PM</span>
+      </div>
+    </footer>
+
+    <script src="js/repo-config.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
