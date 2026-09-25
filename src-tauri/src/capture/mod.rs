@@ -1,4 +1,5 @@
 pub mod frame;
+pub mod message_pump;
 pub mod monitor;
 
 use crate::models::{MonitorCaptureTarget, MonitorInfo};
@@ -7,7 +8,7 @@ use parking_lot::Mutex;
 use std::collections::HashMap;
 use windows::Win32::Foundation::{BOOL, LPARAM, RECT};
 use windows::Win32::Graphics::Gdi::{
-    EnumDisplayMonitors, GetMonitorInfoW, MonitorFromPoint, MONITORINFO, MONITORINFOEXW,
+    EnumDisplayMonitors, GetMonitorInfoW, MONITORINFO, MONITORINFOEXW,
 };
 use windows::Win32::UI::WindowsAndMessaging::{GetSystemMetrics, SM_CXSCREEN, SM_CYSCREEN};
 
@@ -20,13 +21,12 @@ pub fn enumerate_monitors() -> Vec<MonitorInfo> {
     let mut index = 0usize;
 
     unsafe {
-        EnumDisplayMonitors(
+        let _ = EnumDisplayMonitors(
             None,
             None,
             Some(monitor_enum_proc),
             LPARAM(std::ptr::from_mut(&mut monitors) as isize),
-        )
-        .ok();
+        );
     }
 
     // Re-assign indices in enumeration order
@@ -111,22 +111,4 @@ pub fn resolve_capture_targets(ids: &[String]) -> Result<Vec<MonitorCaptureTarge
         return Err("No monitors selected".into());
     }
     Ok(out)
-}
-
-pub fn primary_monitor_point() -> (i32, i32) {
-    (0, 0)
-}
-
-pub fn monitor_from_point(x: i32, y: i32) -> Option<isize> {
-    let h = unsafe {
-        MonitorFromPoint(
-            windows::Win32::Foundation::POINT { x, y },
-            windows::Win32::Graphics::Gdi::MONITOR_DEFAULTTONULL,
-        )
-    };
-    if h.0.is_null() {
-        None
-    } else {
-        Some(h.0 as isize)
-    }
 }

@@ -3,43 +3,6 @@
 
   const $ = (sel) => document.querySelector(sel);
 
-  function pad(n) {
-    return String(n).padStart(2, "0");
-  }
-
-  function tickClock() {
-    const el = $("#taskbar-clock");
-    if (!el) return;
-    const d = new Date();
-    const h = d.getHours();
-    const m = d.getMinutes();
-    const hr = h % 12 || 12;
-    el.textContent = `${hr}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
-  }
-
-  setInterval(tickClock, 1000);
-  tickClock();
-
-  const startBtn = $("#start-button");
-  const startMenu = $("#start-menu");
-  if (startBtn && startMenu) {
-    startBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      startMenu.classList.toggle("open");
-    });
-    document.addEventListener("click", () => startMenu.classList.remove("open"));
-    startMenu.addEventListener("click", (e) => e.stopPropagation());
-  }
-
-  document.querySelectorAll("[data-scroll]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-scroll");
-      const target = document.getElementById(id);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-      startMenu?.classList.remove("open");
-    });
-  });
-
   function setDownloadState({ portable, installer, version, releaseUrl }) {
     const portableBtn = $("#download-portable");
     const installerBtn = $("#download-installer");

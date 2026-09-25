@@ -4,7 +4,7 @@ use crate::models::Quality;
 use std::path::Path;
 use windows::core::PCWSTR;
 use windows::Win32::Media::MediaFoundation::{
-    IMFAttributes, IMFSample, IMFSinkWriter, IMFMediaBuffer, IMFMediaType, MFCreateAttributes,
+    IMFAttributes, IMFSinkWriter, IMFMediaType, MFCreateAttributes,
     MFCreateMediaType, MFCreateMemoryBuffer, MFCreateSample, MFCreateSinkWriterFromURL,
     MFSTARTUP_FULL, MFShutdown, MFStartup, MF_MT_MAJOR_TYPE, MF_MT_SUBTYPE, MF_MT_FRAME_SIZE,
     MF_MT_FRAME_RATE, MF_MT_PIXEL_ASPECT_RATIO, MF_MT_AVG_BITRATE, MF_MT_AUDIO_AVG_BYTES_PER_SECOND,
@@ -35,7 +35,7 @@ impl Mp4Writer {
         include_audio: bool,
     ) -> Result<Self, String> {
         unsafe {
-            CoInitializeEx(None, COINIT_MULTITHREADED).ok();
+            let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
             MFStartup(MF_VERSION, MFSTARTUP_FULL).map_err(|e| format!("MFStartup: {e}"))?;
         }
 

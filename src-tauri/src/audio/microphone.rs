@@ -22,7 +22,7 @@ impl MicrophoneHandle {
 }
 
 pub fn enumerate_microphones() -> Result<Vec<(String, String, bool)>, String> {
-    initialize_mta().ok();
+    let _ = initialize_mta();
     let enumerator = DeviceEnumerator::new().map_err(|e| e.to_string())?;
     let default = enumerator
         .get_default_device(&Direction::Capture)
@@ -68,7 +68,7 @@ fn mic_loop(
     out_tx: Sender<PcmChunk>,
     stop: Arc<AtomicBool>,
 ) -> Result<(), String> {
-    initialize_mta().ok();
+    let _ = initialize_mta();
 
     let enumerator = DeviceEnumerator::new().map_err(|e| e.to_string())?;
     let device = if let Some(id) = device_id {

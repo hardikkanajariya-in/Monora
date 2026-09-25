@@ -1,5 +1,5 @@
 use std::sync::mpsc::{Receiver, Sender};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
 
@@ -57,8 +57,6 @@ fn mixer_loop(
     stop: Arc<std::sync::atomic::AtomicBool>,
 ) {
     let block_samples = (SAMPLE_RATE / 50) as usize * CHANNELS as usize; // ~20ms
-    let mut sys_buf: Vec<f32> = Vec::new();
-    let mut mic_buf: Vec<f32> = Vec::new();
     let mut last_sys = PcmChunk {
         samples: vec![0.0; block_samples],
         timestamp_100ns: 0,
@@ -113,5 +111,3 @@ pub fn sample_rate() -> u32 {
 pub fn channels() -> u16 {
     CHANNELS
 }
-
-pub type SharedMicName = Arc<Mutex<Option<String>>>;

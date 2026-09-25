@@ -39,7 +39,7 @@ pub fn start_system_audio_capture(out_tx: Sender<PcmChunk>) -> Result<SystemAudi
 }
 
 fn system_loop(out_tx: Sender<PcmChunk>, stop: Arc<AtomicBool>) -> Result<(), String> {
-    initialize_mta().ok();
+    let _ = initialize_mta();
 
     let enumerator = DeviceEnumerator::new().map_err(|e| e.to_string())?;
     let device = enumerator

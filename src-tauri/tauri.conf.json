@@ -13,15 +13,21 @@
     "windows": [
       {
         "title": "Monora",
-        "width": 400,
-        "height": 620,
+        "width": 920,
+        "height": 540,
+        "minWidth": 880,
+        "minHeight": 500,
         "resizable": true,
         "fullscreen": false,
         "center": true
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; media-src 'self' asset: https://asset.localhost http://asset.localhost blob:;",
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$VIDEO/**", "$HOME/Videos/**", "**/SimpleRecorder/**"]
+      }
     }
   },
   "bundle": {

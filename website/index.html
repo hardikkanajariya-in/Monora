@@ -12,41 +12,45 @@
     <link rel="stylesheet" href="css/winclassic.css" />
   </head>
   <body>
-    <div class="desktop">
-      <div class="desktop-icons" aria-hidden="true">
-        <div class="desktop-icon">
-          <img class="desktop-icon__img" src="assets/monora-icon.svg" width="32" height="32" alt="" />
-          Monora
-        </div>
-        <div class="desktop-icon">
-          <img class="desktop-icon__img" src="assets/monora-folder.svg" width="32" height="32" alt="" />
-          Videos
-        </div>
+    <div class="desktop" id="desktop">
+      <div class="desktop-icons" id="desktop-icons">
+        <button type="button" class="desktop-icon" data-open="welcome" data-label="Monora">
+          <img class="desktop-icon__img" src="assets/monora-icon.svg" width="48" height="48" alt="" />
+          <span class="desktop-icon__label">Monora</span>
+        </button>
+        <button type="button" class="desktop-icon" data-open="specs" data-label="Videos">
+          <img class="desktop-icon__img" src="assets/monora-folder.svg" width="48" height="48" alt="" />
+          <span class="desktop-icon__label">Videos</span>
+        </button>
       </div>
 
-      <main>
-        <article class="win win--wide" id="welcome">
-          <header class="titlebar">
+      <div class="window-layer" id="window-layer">
+        <article
+          class="win win--wide is-focused"
+          id="welcome"
+          data-window-id="welcome"
+          data-default-x="72"
+          data-default-y="48"
+          data-default-w="560"
+        >
+          <header class="titlebar" data-drag-handle>
             <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">Monora</span>
-            <div class="titlebar-controls" aria-hidden="true">
-              <button type="button" class="titlebar-btn">&#8211;</button>
-              <button type="button" class="titlebar-btn">&#9633;</button>
-              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            <div class="titlebar-controls">
+              <button type="button" class="titlebar-btn" data-action="minimize" title="Minimize" aria-label="Minimize"></button>
+              <button type="button" class="titlebar-btn" data-action="maximize" title="Maximize" aria-label="Maximize"></button>
+              <button type="button" class="titlebar-btn titlebar-btn--close" data-action="close" title="Close" aria-label="Close"></button>
             </div>
           </header>
           <div class="win-body">
-            <p class="lead">
-              <strong>Screen recording for Windows.</strong>
-            </p>
+            <p class="lead"><strong>Screen recording for Windows.</strong></p>
             <p class="muted">
               Multi-monitor capture with system and microphone audio. Exports H.264 and AAC in MP4. Portable
               archive or Windows installer; no separate encoder install on the target PC.
             </p>
-
             <fieldset class="groupbox">
               <legend>Download <span class="badge-version" id="release-version">latest</span></legend>
-              <p id="download-status" class="muted">Loading release information…</p>
+              <p id="download-status" class="muted">Loading…</p>
               <div class="btn-row">
                 <a
                   id="download-portable"
@@ -72,22 +76,29 @@
                 · Windows 10 or 11 (64-bit). Microsoft Edge WebView2 required.
               </p>
             </fieldset>
-
             <div class="btn-row">
               <a id="github-link" class="btn-classic" href="https://github.com/hardikkanajariya-in/Monora" target="_blank" rel="noopener">View on GitHub</a>
               <a id="source-link" class="btn-classic" href="https://github.com/hardikkanajariya-in/Monora" target="_blank" rel="noopener">Source code</a>
             </div>
           </div>
+          <div class="win-resize-handle" data-resize-handle aria-hidden="true"></div>
         </article>
 
-        <article class="win" id="features">
-          <header class="titlebar">
+        <article
+          class="win is-inactive"
+          id="features"
+          data-window-id="features"
+          data-default-x="420"
+          data-default-y="120"
+          data-default-w="480"
+        >
+          <header class="titlebar" data-drag-handle>
             <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">Features</span>
-            <div class="titlebar-controls" aria-hidden="true">
-              <button type="button" class="titlebar-btn">&#8211;</button>
-              <button type="button" class="titlebar-btn">&#9633;</button>
-              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            <div class="titlebar-controls">
+              <button type="button" class="titlebar-btn" data-action="minimize" aria-label="Minimize"></button>
+              <button type="button" class="titlebar-btn" data-action="maximize" aria-label="Maximize"></button>
+              <button type="button" class="titlebar-btn titlebar-btn--close" data-action="close" aria-label="Close"></button>
             </div>
           </header>
           <div class="win-body">
@@ -106,11 +117,11 @@
               </div>
               <div class="feature-tile">
                 <strong>Portable deployment</strong>
-                Run from any directory. Settings are stored in <code>config/</code>; logs are written to <code>logs/</code>.
+                Run from any directory. Settings in <code>config/</code>; logs in <code>logs/</code>.
               </div>
               <div class="feature-tile">
                 <strong>System tray and shortcut</strong>
-                Runs in the notification area. Use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> to start or stop recording.
+                Notification area. <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> to start or stop recording.
               </div>
               <div class="feature-tile">
                 <strong>Source</strong>
@@ -118,16 +129,24 @@
               </div>
             </div>
           </div>
+          <div class="win-resize-handle" data-resize-handle aria-hidden="true"></div>
         </article>
 
-        <article class="win" id="specs">
-          <header class="titlebar">
+        <article
+          class="win is-inactive"
+          id="specs"
+          data-window-id="specs"
+          data-default-x="180"
+          data-default-y="280"
+          data-default-w="500"
+        >
+          <header class="titlebar" data-drag-handle>
             <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">System requirements</span>
-            <div class="titlebar-controls" aria-hidden="true">
-              <button type="button" class="titlebar-btn">&#8211;</button>
-              <button type="button" class="titlebar-btn">&#9633;</button>
-              <button type="button" class="titlebar-btn titlebar-btn--close">&#10005;</button>
+            <div class="titlebar-controls">
+              <button type="button" class="titlebar-btn" data-action="minimize" aria-label="Minimize"></button>
+              <button type="button" class="titlebar-btn" data-action="maximize" aria-label="Maximize"></button>
+              <button type="button" class="titlebar-btn titlebar-btn--close" data-action="close" aria-label="Close"></button>
             </div>
           </header>
           <div class="win-body">
@@ -149,7 +168,7 @@
                 </tr>
                 <tr>
                   <td>Output</td>
-                  <td>MP4 (H.264 + AAC) — default folder <code>%USERPROFILE%\Videos\SimpleRecorder\</code></td>
+                  <td>MP4 (H.264 + AAC) — <code>%USERPROFILE%\Videos\SimpleRecorder\</code></td>
                 </tr>
                 <tr>
                   <td>Quality</td>
@@ -158,38 +177,69 @@
               </tbody>
             </table>
           </div>
+          <div class="win-resize-handle" data-resize-handle aria-hidden="true"></div>
         </article>
-      </main>
+      </div>
     </div>
 
-    <nav class="start-menu" id="start-menu" aria-label="Start menu">
-      <div class="start-menu-header">
-        <img src="assets/monora-icon.svg" width="24" height="24" alt="" class="start-menu-logo" />
-        Monora
+    <nav class="start-menu" id="start-menu" aria-label="Start menu" hidden>
+      <div class="start-menu-inner">
+        <div class="start-menu-left">
+          <div class="start-search">
+            <input type="text" readonly value="Search programs and files" class="start-search-input" tabindex="-1" />
+          </div>
+          <ul class="start-programs">
+            <li>
+              <button type="button" data-open="welcome">
+                <img src="assets/monora-icon.svg" width="24" height="24" alt="" />
+                Monora
+              </button>
+            </li>
+            <li>
+              <button type="button" data-open="features">
+                <img src="assets/monora-icon.svg" width="24" height="24" alt="" />
+                Features
+              </button>
+            </li>
+            <li>
+              <button type="button" data-open="specs">
+                <img src="assets/monora-folder.svg" width="24" height="24" alt="" />
+                System requirements
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="start-menu-right">
+          <button type="button" data-open="welcome">Download</button>
+          <a href="https://github.com/hardikkanajariya-in/Monora" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/hardikkanajariya-in/Monora/releases" target="_blank" rel="noopener">Releases</a>
+        </div>
       </div>
-      <div class="start-menu-items">
-        <button type="button" data-scroll="welcome">Download</button>
-        <button type="button" data-scroll="features">Features</button>
-        <button type="button" data-scroll="specs">Requirements</button>
+      <div class="start-menu-footer">
+        <button type="button" class="start-shutdown" id="start-shutdown" aria-label="Shut down">
+          <span class="start-shutdown-icon" aria-hidden="true"></span>
+          Shut down
+        </button>
       </div>
     </nav>
 
-    <footer class="taskbar">
+    <footer class="taskbar" id="taskbar">
       <button type="button" class="start-button" id="start-button" aria-expanded="false" aria-controls="start-menu">
-        <span class="start-flag" aria-hidden="true"></span>
-        Start
+        <span class="start-orb" aria-hidden="true"></span>
+        <span class="start-label">Start</span>
       </button>
-      <div class="taskbar-pins">
-        <span class="taskbar-pin">
-          <img src="assets/monora-icon.svg" width="16" height="16" alt="" class="taskbar-pin-icon" />
-          Monora
-        </span>
-      </div>
+      <div class="taskbar-windows" id="taskbar-windows"></div>
       <div class="taskbar-tray">
-        <span id="taskbar-clock">12:00 PM</span>
+        <span class="tray-icon tray-icon--network" title="Network" aria-hidden="true"></span>
+        <span class="tray-icon tray-icon--volume" title="Volume" aria-hidden="true"></span>
+        <time id="taskbar-clock" class="taskbar-clock">12:00 PM</time>
       </div>
+      <button type="button" class="show-desktop" id="show-desktop" title="Show desktop" aria-label="Show desktop"></button>
     </footer>
 
+    <div class="desktop-overlay" id="desktop-overlay" hidden aria-hidden="true"></div>
+
+    <script src="js/desktop.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

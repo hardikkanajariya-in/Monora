@@ -7,12 +7,11 @@ mod models;
 mod recording;
 mod settings_store;
 
-use commands::{audio as audio_cmds, monitors, recording as recording_cmds, settings};
+use commands::{audio as audio_cmds, library, monitors, recording as recording_cmds, settings};
 use tauri::Emitter;
 use models::AppSettings;
 use parking_lot::Mutex;
 use recording::session::RecordingSessionController;
-use std::sync::Arc;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -55,6 +54,7 @@ pub fn run() {
             recording_cmds::get_recording_status,
             recording_cmds::start_recording,
             recording_cmds::stop_recording,
+            library::list_recordings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

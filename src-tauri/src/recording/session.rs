@@ -1,19 +1,19 @@
 use crate::audio::microphone::{start_microphone_capture, MicrophoneHandle};
-use crate::audio::mixer::{start_audio_mixer, AudioMixerHandle, PcmChunk};
+use crate::audio::mixer::{start_audio_mixer, PcmChunk};
 use crate::audio::system::{start_system_audio_capture, SystemAudioHandle};
 use crate::capture::frame::CapturedFrame;
 use crate::capture::monitor::{start_monitor_capture, MonitorCaptureHandle, recording_clock_100ns};
 use crate::encoder::muxer::Mp4Writer;
 use crate::logging;
 use crate::models::{
-    AppSettings, MonitorCaptureTarget, MonitorInfo, Quality, RecordingMode, RecordingProgress,
+    AppSettings, MonitorCaptureTarget, RecordingMode, RecordingProgress,
     RecordingState,
 };
 use chrono::Local;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::{self, Receiver, Sender};
+use std::sync::mpsc::{self, Receiver};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -164,8 +164,6 @@ fn run_session(
     progress: Arc<Mutex<Option<RecordingProgress>>>,
     stop_signal: Arc<std::sync::atomic::AtomicBool>,
 ) -> Result<(), String> {
-    *state.lock().unwrap() = RecordingState::Recording;
-
     let include_audio = settings.system_audio_enabled || settings.microphone_enabled;
     let (canvas_w, canvas_h, min_x, min_y) = combined_canvas(&targets);
 
@@ -231,11 +229,13 @@ fn run_session(
     let mut frame_channels: Vec<(String, Receiver<CapturedFrame>)> = Vec::new();
 
     for target in targets.iter().cloned() {
-        let (tx, rx) = mpsc::channel();
+        let (tx, rx) = mpsc::sync_channel(2);
         let handle = start_monitor_capture(target.clone(), settings.fps, tx, session_start)?;
         capture_handles.push(handle);
         frame_channels.push((target.info.id.clone(), rx));
     }
+
+    *state.lock().unwrap() = RecordingState::Recording;
 
     let latest_frames: Arc<Mutex<HashMap<String, CapturedFrame>>> =
         Arc::new(Mutex::new(HashMap::new()));
@@ -255,6 +255,11 @@ fn run_session(
         .iter()
         .map(|p| p.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
+
+    let frame_period = Duration::from_millis((1000 / settings.fps.max(1)) as u64);
+    let mut last_encode_at = Instant::now() - frame_period;
+    let mut last_combined_ts: i64 = -1;
+    let mut last_separate_ts: HashMap<String, i64> = HashMap::new();
 
     while !stop_signal.load(std::sync::atomic::Ordering::SeqCst) {
         if last_progress.elapsed() >= Duration::from_millis(500) {
@@ -282,6 +287,11 @@ fn run_session(
             }
         }
 
+        if last_encode_at.elapsed() < frame_period {
+            thread::sleep(Duration::from_millis(4));
+            continue;
+        }
+
         match settings.recording_mode {
             RecordingMode::Combined => {
                 if let Some(writer) = writers.first_mut() {
@@ -293,25 +303,38 @@ fn run_session(
                         min_x,
                         min_y,
                     ) {
-                        writer
-                            .write_video_frame(&frame.bgra, frame.timestamp_100ns)
-                            .map_err(|e| e.to_string())?;
+                        if frame.timestamp_100ns != last_combined_ts {
+                            writer
+                                .write_video_frame(&frame.bgra, frame.timestamp_100ns)
+                                .map_err(|e| e.to_string())?;
+                            last_combined_ts = frame.timestamp_100ns;
+                            last_encode_at = Instant::now();
+                        }
                     }
                 }
             }
             RecordingMode::Separate => {
                 let map = latest_frames.lock().unwrap();
+                let mut wrote = false;
                 for (i, t) in targets.iter().enumerate() {
                     if let Some(frame) = map.get(&t.info.id) {
-                        writers[i]
-                            .write_video_frame(&frame.bgra, frame.timestamp_100ns)
-                            .map_err(|e| e.to_string())?;
+                        let prev = last_separate_ts.get(&t.info.id).copied().unwrap_or(-1);
+                        if frame.timestamp_100ns != prev {
+                            writers[i]
+                                .write_video_frame(&frame.bgra, frame.timestamp_100ns)
+                                .map_err(|e| e.to_string())?;
+                            last_separate_ts.insert(t.info.id.clone(), frame.timestamp_100ns);
+                            wrote = true;
+                        }
                     }
+                }
+                if wrote {
+                    last_encode_at = Instant::now();
                 }
             }
         }
 
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_millis(2));
     }
 
     *state.lock().unwrap() = RecordingState::Stopping;

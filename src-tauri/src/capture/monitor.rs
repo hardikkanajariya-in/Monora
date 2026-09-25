@@ -2,12 +2,12 @@ use crate::capture::frame::CapturedFrame;
 use crate::logging;
 use crate::models::MonitorCaptureTarget;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::SyncSender;
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
+use crate::capture::message_pump;
 use windows::core::Interface;
-use windows::Foundation::TypedEventHandler;
 use windows::Graphics::Capture::GraphicsCaptureItem;
 use windows::Graphics::DirectX::Direct3D11::IDirect3DDevice;
 use windows::Win32::Graphics::Gdi::HMONITOR;
@@ -16,11 +16,12 @@ use windows::Win32::Graphics::Direct3D11::{
     D3D11CreateDevice, ID3D11Device, ID3D11Texture2D, D3D11_CPU_ACCESS_READ,
     D3D11_CREATE_DEVICE_BGRA_SUPPORT, D3D11_MAP_READ, D3D11_MAPPED_SUBRESOURCE,
     D3D11_SDK_VERSION, D3D11_TEXTURE2D_DESC, D3D11_USAGE_STAGING,
-    D3D11_BIND_FLAG, D3D11_CPU_ACCESS_FLAG, D3D11_RESOURCE_MISC_FLAG,
+    D3D11_BIND_FLAG, D3D11_RESOURCE_MISC_FLAG,
 };
 use windows::Win32::Graphics::Dxgi::Common::{DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_SAMPLE_DESC};
 use windows::Win32::Graphics::Dxgi::IDXGIDevice;
 use windows::Win32::System::Com::{CoInitializeEx, COINIT_MULTITHREADED};
+use windows::Win32::System::WinRT::{RoInitialize, RO_INIT_MULTITHREADED};
 use windows::Win32::System::WinRT::Direct3D11::CreateDirect3D11DeviceFromDXGIDevice;
 use windows::Win32::System::WinRT::Graphics::Capture::IGraphicsCaptureItemInterop;
 
@@ -41,7 +42,7 @@ impl MonitorCaptureHandle {
 pub fn start_monitor_capture(
     target: MonitorCaptureTarget,
     fps: u32,
-    frame_tx: Sender<CapturedFrame>,
+    frame_tx: SyncSender<CapturedFrame>,
     session_start_100ns: i64,
 ) -> Result<MonitorCaptureHandle, String> {
     let stop = Arc::new(AtomicBool::new(false));
@@ -66,12 +67,13 @@ pub fn start_monitor_capture(
 fn capture_loop(
     target: MonitorCaptureTarget,
     fps: u32,
-    frame_tx: Sender<CapturedFrame>,
+    frame_tx: SyncSender<CapturedFrame>,
     session_start_100ns: i64,
     stop: Arc<AtomicBool>,
 ) -> Result<(), String> {
     unsafe {
-        CoInitializeEx(None, COINIT_MULTITHREADED).ok();
+        let _ = CoInitializeEx(None, COINIT_MULTITHREADED);
+        let _ = RoInitialize(RO_INIT_MULTITHREADED);
     }
 
     let mut device: Option<ID3D11Device> = None;
@@ -116,30 +118,25 @@ fn capture_loop(
         .map_err(|e| format!("CreateCaptureSession: {e}"))?;
     session.StartCapture().map_err(|e| format!("StartCapture: {e}"))?;
 
-    let (notify_tx, notify_rx) = std::sync::mpsc::channel::<()>();
     let frame_pool_ref = frame_pool.clone();
-    let _token = frame_pool
-        .FrameArrived(
-            &TypedEventHandler::new(move |pool, _| {
-                let _ = pool;
-                let _ = notify_tx.send(());
-                Ok(())
-            }),
-        )
-        .map_err(|e| format!("FrameArrived handler: {e}"))?;
-
     let frame_interval = Duration::from_nanos(1_000_000_000 / fps.max(1) as u64);
     let mut last_emit = std::time::Instant::now() - frame_interval;
     let mut staging: Option<ID3D11Texture2D> = None;
+    let context = unsafe {
+        device
+            .GetImmediateContext()
+            .map_err(|e| e.to_string())?
+    };
 
     while !stop.load(Ordering::SeqCst) {
-        let _ = notify_rx.recv_timeout(Duration::from_millis(50));
+        message_pump::pump_messages();
         if stop.load(Ordering::SeqCst) {
             break;
         }
 
         let now = std::time::Instant::now();
         if now.duration_since(last_emit) < frame_interval {
+            thread::sleep(Duration::from_millis(2));
             continue;
         }
 
@@ -193,11 +190,6 @@ fn capture_loop(
         }
 
         let staging_tex = staging.as_ref().unwrap();
-        let context = unsafe {
-            device
-                .GetImmediateContext()
-                .map_err(|e| e.to_string())?
-        };
 
         unsafe {
             context.CopyResource(staging_tex, &texture);
@@ -235,8 +227,10 @@ fn capture_loop(
             bgra,
             timestamp_100ns: elapsed,
         };
-        if frame_tx.send(captured).is_err() {
-            break;
+        match frame_tx.try_send(captured) {
+            Ok(()) => {}
+            Err(std::sync::mpsc::TrySendError::Full(_)) => {}
+            Err(std::sync::mpsc::TrySendError::Disconnected(_)) => break,
         }
         last_emit = now;
     }
