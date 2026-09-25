@@ -1,8 +1,5 @@
 (function () {
-  const REPO =
-    window.MONORA_GITHUB_REPO && !window.MONORA_GITHUB_REPO.includes("YOUR_GITHUB")
-      ? window.MONORA_GITHUB_REPO
-      : null;
+  const REPO = "hardikkanajariya-in/Monora";
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -16,13 +13,8 @@
     const d = new Date();
     const h = d.getHours();
     const m = d.getMinutes();
-    const use12 = true;
-    if (use12) {
-      const hr = h % 12 || 12;
-      el.textContent = `${hr}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
-    } else {
-      el.textContent = `${pad(h)}:${pad(m)}`;
-    }
+    const hr = h % 12 || 12;
+    el.textContent = `${hr}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
   }
 
   setInterval(tickClock, 1000);
@@ -66,24 +58,14 @@
       installerBtn.classList.remove("disabled");
       installerBtn.removeAttribute("aria-disabled");
     }
-    if (statusEl) {
-      if (releaseUrl) {
-        statusEl.innerHTML = `Current release: <a href="${releaseUrl}" target="_blank" rel="noopener">GitHub Releases</a>.`;
-      } else if (!REPO) {
-        statusEl.textContent =
-          "Configure the repository in website/js/repo-config.js to enable direct download links.";
-      }
+    if (statusEl && releaseUrl) {
+      statusEl.innerHTML = `<a href="${releaseUrl}" target="_blank" rel="noopener">${version || "Release"}</a>`;
     }
   }
 
   async function loadLatestRelease() {
-    if (!REPO) {
-      setDownloadState({});
-      return;
-    }
-
     const statusEl = $("#download-status");
-    if (statusEl) statusEl.textContent = "Loading release information…";
+    if (statusEl) statusEl.textContent = "Loading…";
 
     try {
       const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
@@ -104,15 +86,12 @@
       });
 
       if (!portable && !installer && statusEl) {
-        statusEl.textContent = "No release packages are published yet. See GitHub Releases for updates.";
+        statusEl.textContent = "No packages yet.";
       }
     } catch {
-      if (statusEl) {
-        statusEl.textContent =
-          "Release information could not be loaded. Download builds from the GitHub Releases page.";
-      }
+      if (statusEl) statusEl.textContent = "See releases on GitHub.";
       const releasesLink = $("#releases-fallback");
-      if (releasesLink && REPO) {
+      if (releasesLink) {
         releasesLink.href = `https://github.com/${REPO}/releases`;
         releasesLink.hidden = false;
       }
@@ -123,6 +102,6 @@
 
   const ghLink = $("#github-link");
   const srcLink = $("#source-link");
-  if (REPO && ghLink) ghLink.href = `https://github.com/${REPO}`;
-  if (REPO && srcLink) srcLink.href = `https://github.com/${REPO}`;
+  if (ghLink) ghLink.href = `https://github.com/${REPO}`;
+  if (srcLink) srcLink.href = `https://github.com/${REPO}`;
 })();

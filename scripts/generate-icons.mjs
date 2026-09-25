@@ -38,7 +38,6 @@ function renderPng(size) {
 
 for (const { name, size } of sizes) {
   writeFileSync(join(iconsDir, name), renderPng(size));
-  console.log(`Wrote ${name} (${size}px)`);
 }
 
 const png1024 = renderPng(1024);
@@ -54,4 +53,3 @@ copyFileSync(svgPath, join(websiteAssets, "monora-icon.svg"));
 copyFileSync(join(root, "assets", "brand", "monora-folder.svg"), join(websiteAssets, "monora-folder.svg"));
 copyFileSync(join(root, "assets", "brand", "monora-folder.svg"), join(publicDir, "monora-folder.svg"));
 
-console.log("Synced SVG assets to public/ and website/assets/");

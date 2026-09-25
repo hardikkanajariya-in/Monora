@@ -1,8 +1,8 @@
 [package]
 name = "simple-recorder"
 version = "1.0.0"
-description = "Lightweight portable Windows screen recorder"
-authors = ["Simple Recorder"]
+description = "Windows screen recorder"
+authors = ["hardikkanajariya-in"]
 edition = "2021"
 
 [lib]

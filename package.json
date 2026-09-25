@@ -2,12 +2,13 @@
   "name": "monora",
   "private": false,
   "version": "1.0.0",
-  "description": "Monora (Simple Recorder) — lightweight portable Windows screen recorder",
+  "description": "Monora — Windows screen recorder",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/Monora.git"
+    "url": "https://github.com/hardikkanajariya-in/Monora.git"
   },
+  "homepage": "https://hardikkanajariya-in.github.io/Monora/",
   "type": "module",
   "scripts": {
     "dev": "vite",

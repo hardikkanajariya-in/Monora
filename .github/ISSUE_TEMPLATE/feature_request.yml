@@ -1,22 +1,11 @@
-name: Feature request
-description: Suggest an idea for Monora
-title: "[Feature]: "
+name: Feature
+description: Suggest a change
+title: "[Feature] "
 labels: ["enhancement"]
 body:
   - type: textarea
-    id: problem
+    id: body
     attributes:
-      label: Problem or use case
-      description: What problem are you trying to solve?
+      label: Description
     validations:
       required: true
-  - type: textarea
-    id: solution
-    attributes:
-      label: Proposed solution
-    validations:
-      required: true
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives considered
