@@ -14,16 +14,22 @@ pub fn get_recording_status(state: State<'_, AppState>) -> Result<RecordingStatu
 }
 
 #[tauri::command]
-pub fn start_recording(app: AppHandle, state: State<'_, AppState>) -> Result<(), String> {
+pub async fn start_recording(app: AppHandle, state: State<'_, AppState>) -> Result<(), String> {
     let settings = state.settings.lock().clone();
     if settings.selected_monitor_ids.is_empty() {
         return Err("Select at least one display before recording.".into());
     }
-    let targets = capture::resolve_capture_targets(&settings.selected_monitor_ids)?;
+
+    let targets = tauri::async_runtime::spawn_blocking({
+        let ids = settings.selected_monitor_ids.clone();
+        move || capture::resolve_capture_targets(&ids)
+    })
+    .await
+    .map_err(|e| e.to_string())??;
 
     {
         let mut session = state.session.lock();
-        session.start(settings.clone(), targets)?;
+        session.start(app.clone(), settings.clone(), targets)?;
     }
 
     let _ = app.emit("recording_started", ());

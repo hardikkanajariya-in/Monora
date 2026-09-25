@@ -1,3 +1,4 @@
+pub mod desktop_duplication;
 pub mod frame;
 pub mod message_pump;
 pub mod monitor;

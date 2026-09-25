@@ -70,6 +70,7 @@ let monitors: MonitorInfo[] = [];
 let microphones: AudioDeviceInfo[] = [];
 let recordings: RecordingEntry[] = [];
 let selectedRecordingPath: string | null = null;
+let previewJpegBase64: string | null = null;
 let status: RecordingStatus = { state: "idle", progress: null, last_error: null };
 
 const app = document.getElementById("app")!;
@@ -173,19 +174,40 @@ function renderLibraryColumn(): HTMLElement {
     list.appendChild(empty);
   } else {
     for (const r of recordings) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className =
+      const row = document.createElement("div");
+      row.className =
         "recording-item" + (selectedRecordingPath === r.path ? " active" : "");
-      btn.innerHTML = `
+
+      const main = document.createElement("button");
+      main.type = "button";
+      main.className = "recording-item-main";
+      main.innerHTML = `
         <div class="recording-item-title">${r.file_name}</div>
         <div class="recording-item-meta">${formatBytes(r.size_bytes)} · ${formatWhen(r.modified_unix_ms)}</div>
       `;
-      btn.onclick = () => {
+      main.onclick = () => {
         selectedRecordingPath = r.path;
         render();
       };
-      list.appendChild(btn);
+
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "recording-item-delete";
+      del.textContent = "Delete";
+      del.disabled = isRecordingActive();
+      del.onclick = async (e) => {
+        e.stopPropagation();
+        if (!confirm(`Delete ${r.file_name}?`)) return;
+        await invoke("delete_recording", { path: r.path });
+        if (selectedRecordingPath === r.path) {
+          selectedRecordingPath = null;
+        }
+        await loadRecordings();
+        render();
+      };
+
+      row.append(main, del);
+      list.appendChild(row);
     }
   }
   col.appendChild(list);
@@ -198,10 +220,15 @@ function renderLibraryColumn(): HTMLElement {
   video.controls = true;
   video.preload = "metadata";
 
-  if (selectedRecordingPath) {
+  if (isRecordingActive()) {
+    label.textContent = "Playback paused while recording";
+  } else if (selectedRecordingPath) {
     const entry = recordings.find((r) => r.path === selectedRecordingPath);
     label.textContent = entry?.file_name ?? selectedRecordingPath;
-    video.src = convertFileSrc(selectedRecordingPath);
+    const entryMeta = recordings.find((r) => r.path === selectedRecordingPath);
+    if (entryMeta && entryMeta.size_bytes > 0) {
+      video.src = convertFileSrc(selectedRecordingPath);
+    }
   } else {
     label.textContent = "Select a recording to play";
   }
@@ -258,6 +285,15 @@ function render(): void {
         ${audioSummary()}
       </div>
     `;
+    const preview = document.createElement("img");
+    preview.className = "recording-preview";
+    preview.alt = "Live preview";
+    if (previewJpegBase64) {
+      preview.src = `data:image/jpeg;base64,${previewJpegBase64}`;
+    } else {
+      preview.classList.add("recording-preview--empty");
+    }
+    panel.appendChild(preview);
     controls.appendChild(panel);
     const stopBtn = document.createElement("button");
     stopBtn.className = "primary stop";
@@ -440,16 +476,15 @@ function render(): void {
     startBtn.className = "primary";
     startBtn.textContent = "Start recording";
     startBtn.disabled = busy || settings.selected_monitor_ids.length === 0;
-    startBtn.onclick = async () => {
+    startBtn.onclick = () => {
       startBtn.disabled = true;
+      previewJpegBase64 = null;
       status = { ...status, state: "starting", last_error: null };
       render();
-      try {
-        await invoke("start_recording");
-      } catch (e) {
+      void invoke("start_recording").catch((e) => {
         status = { ...status, state: "error", last_error: String(e) };
         render();
-      }
+      });
     };
     controls.appendChild(startBtn);
   }
@@ -464,8 +499,19 @@ async function init(): Promise<void> {
   render();
 
   await listen("recording_started", async () => {
+    previewJpegBase64 = null;
     status = await invoke<RecordingStatus>("get_recording_status");
     render();
+  });
+
+  await listen("recording_preview", (event) => {
+    const payload = event.payload as { jpeg_base64: string };
+    previewJpegBase64 = payload.jpeg_base64;
+    const img = document.querySelector<HTMLImageElement>(".recording-preview");
+    if (img) {
+      img.src = `data:image/jpeg;base64,${payload.jpeg_base64}`;
+      img.classList.remove("recording-preview--empty");
+    }
   });
 
   await listen("recording_progress", (event) => {

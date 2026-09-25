@@ -63,3 +63,30 @@ fn is_app_recording_name(name: &str) -> bool {
     let lower = name.to_ascii_lowercase();
     lower.starts_with("simplerecorder_") && lower.ends_with(".mp4")
 }
+
+#[tauri::command]
+pub fn delete_recording(state: State<'_, AppState>, path: String) -> Result<(), String> {
+    let output_dir = state.settings.lock().output_directory.clone();
+    let file = Path::new(&path);
+    let canonical_dir = Path::new(&output_dir)
+        .canonicalize()
+        .map_err(|e| format!("Output folder unavailable: {e}"))?;
+    let canonical_file = file
+        .canonicalize()
+        .map_err(|e| format!("Recording not found: {e}"))?;
+
+    if !canonical_file.starts_with(&canonical_dir) {
+        return Err("Cannot delete files outside the output folder.".into());
+    }
+
+    let name = canonical_file
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_default();
+    if !is_app_recording_name(&name) {
+        return Err("Only Monora recordings can be deleted from here.".into());
+    }
+
+    fs::remove_file(&canonical_file).map_err(|e| e.to_string())?;
+    Ok(())
+}

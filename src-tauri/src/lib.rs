@@ -55,6 +55,7 @@ pub fn run() {
             recording_cmds::start_recording,
             recording_cmds::stop_recording,
             library::list_recordings,
+            library::delete_recording,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -135,7 +136,12 @@ fn setup_hotkey(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     || current == models::RecordingState::Completed
                     || current == models::RecordingState::Error
                 {
-                    let _ = recording_cmds::start_recording(app.clone(), app.state());
+                    let app_handle = app.clone();
+                    tauri::async_runtime::spawn(async move {
+                        let _ =
+                            recording_cmds::start_recording(app_handle.clone(), app_handle.state())
+                                .await;
+                    });
                 }
             })
             .build(),

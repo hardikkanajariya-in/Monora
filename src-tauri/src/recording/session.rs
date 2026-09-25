@@ -5,6 +5,9 @@ use crate::capture::frame::CapturedFrame;
 use crate::capture::monitor::{start_monitor_capture, MonitorCaptureHandle, recording_clock_100ns};
 use crate::encoder::muxer::Mp4Writer;
 use crate::logging;
+use crate::recording::preview;
+use serde::Serialize;
+use tauri::{AppHandle, Emitter};
 use crate::models::{
     AppSettings, MonitorCaptureTarget, RecordingMode, RecordingProgress,
     RecordingState,
@@ -49,7 +52,12 @@ impl RecordingSessionController {
         self.last_error.lock().unwrap().clone()
     }
 
-    pub fn start(&mut self, settings: AppSettings, targets: Vec<MonitorCaptureTarget>) -> Result<(), String> {
+    pub fn start(
+        &mut self,
+        app: AppHandle,
+        settings: AppSettings,
+        targets: Vec<MonitorCaptureTarget>,
+    ) -> Result<(), String> {
         if *self.state.lock().unwrap() != RecordingState::Idle
             && *self.state.lock().unwrap() != RecordingState::Completed
             && *self.state.lock().unwrap() != RecordingState::Error
@@ -76,6 +84,7 @@ impl RecordingSessionController {
             .name("recording-session".into())
             .spawn(move || {
                 if let Err(e) = run_session(
+                    app,
                     settings,
                     targets,
                     output_paths,
@@ -155,7 +164,13 @@ fn unique_path(dir: &Path, stem: &str, ext: &str) -> PathBuf {
     path
 }
 
+#[derive(Clone, Serialize)]
+struct PreviewEvent {
+    jpeg_base64: String,
+}
+
 fn run_session(
+    app: AppHandle,
     settings: AppSettings,
     targets: Vec<MonitorCaptureTarget>,
     output_paths: Vec<PathBuf>,
@@ -166,34 +181,6 @@ fn run_session(
 ) -> Result<(), String> {
     let include_audio = settings.system_audio_enabled || settings.microphone_enabled;
     let (canvas_w, canvas_h, min_x, min_y) = combined_canvas(&targets);
-
-    let mut writers: Vec<Mp4Writer> = Vec::new();
-    match settings.recording_mode {
-        RecordingMode::Combined => {
-            let w = Mp4Writer::create(
-                &output_paths[0],
-                canvas_w,
-                canvas_h,
-                settings.fps,
-                settings.quality,
-                include_audio,
-            )?;
-            writers.push(w);
-        }
-        RecordingMode::Separate => {
-            for (i, t) in targets.iter().enumerate() {
-                let w = Mp4Writer::create(
-                    &output_paths[i],
-                    t.info.width,
-                    t.info.height,
-                    settings.fps,
-                    settings.quality,
-                    include_audio && i == 0,
-                )?;
-                writers.push(w);
-            }
-        }
-    }
 
     let (sys_tx, sys_rx) = mpsc::channel::<PcmChunk>();
     let (mic_tx, mic_rx) = mpsc::channel::<PcmChunk>();
@@ -223,8 +210,6 @@ fn run_session(
         None
     };
 
-    let mut mixer_handle = start_audio_mixer(sys_rx_opt, mic_rx_opt, mix_tx, session_start);
-
     let mut capture_handles: Vec<MonitorCaptureHandle> = Vec::new();
     let mut frame_channels: Vec<(String, Receiver<CapturedFrame>)> = Vec::new();
 
@@ -234,8 +219,6 @@ fn run_session(
         capture_handles.push(handle);
         frame_channels.push((target.info.id.clone(), rx));
     }
-
-    *state.lock().unwrap() = RecordingState::Recording;
 
     let latest_frames: Arc<Mutex<HashMap<String, CapturedFrame>>> =
         Arc::new(Mutex::new(HashMap::new()));
@@ -249,6 +232,48 @@ fn run_session(
         });
     }
 
+    let warmup_deadline = Instant::now() + Duration::from_secs(10);
+    while Instant::now() < warmup_deadline && !stop_signal.load(std::sync::atomic::Ordering::SeqCst) {
+        if !latest_frames.lock().unwrap().is_empty() {
+            break;
+        }
+        thread::sleep(Duration::from_millis(50));
+    }
+    if latest_frames.lock().unwrap().is_empty() {
+        return Err("Display capture did not start. Try again or select one monitor.".into());
+    }
+
+    let mut writers: Vec<Mp4Writer> = Vec::new();
+    match settings.recording_mode {
+        RecordingMode::Combined => {
+            let w = Mp4Writer::create(
+                &output_paths[0],
+                canvas_w,
+                canvas_h,
+                settings.fps,
+                settings.quality,
+                include_audio,
+            )?;
+            writers.push(w);
+        }
+        RecordingMode::Separate => {
+            for (i, t) in targets.iter().enumerate() {
+                let w = Mp4Writer::create(
+                    &output_paths[i],
+                    t.info.width,
+                    t.info.height,
+                    settings.fps,
+                    settings.quality,
+                    include_audio && i == 0,
+                )?;
+                writers.push(w);
+            }
+        }
+    }
+
+    let mut mixer_handle = start_audio_mixer(sys_rx_opt, mic_rx_opt, mix_tx, session_start);
+    *state.lock().unwrap() = RecordingState::Recording;
+
     let start_instant = Instant::now();
     let mut last_progress = Instant::now();
     let path_strings = output_paths
@@ -260,6 +285,7 @@ fn run_session(
     let mut last_encode_at = Instant::now() - frame_period;
     let mut last_combined_ts: i64 = -1;
     let mut last_separate_ts: HashMap<String, i64> = HashMap::new();
+    let mut last_preview = Instant::now() - Duration::from_secs(1);
 
     while !stop_signal.load(std::sync::atomic::Ordering::SeqCst) {
         if last_progress.elapsed() >= Duration::from_millis(500) {
@@ -287,8 +313,31 @@ fn run_session(
             }
         }
 
+        if last_preview.elapsed() >= Duration::from_millis(800) {
+            let preview_frame = preview_source_frame(
+                &settings.recording_mode,
+                &targets,
+                &latest_frames.lock().unwrap(),
+                canvas_w,
+                canvas_h,
+                min_x,
+                min_y,
+            );
+            if let Some(frame) = preview_frame {
+                if let Some(jpeg) = preview::preview_jpeg_base64(&frame) {
+                    let _ = app.emit(
+                        "recording_preview",
+                        PreviewEvent {
+                            jpeg_base64: jpeg,
+                        },
+                    );
+                }
+            }
+            last_preview = Instant::now();
+        }
+
         if last_encode_at.elapsed() < frame_period {
-            thread::sleep(Duration::from_millis(4));
+            thread::sleep(Duration::from_millis(8));
             continue;
         }
 
@@ -374,6 +423,22 @@ fn run_session(
     *state.lock().unwrap() = RecordingState::Completed;
     *progress.lock().unwrap() = None;
     Ok(())
+}
+
+fn preview_source_frame(
+    mode: &RecordingMode,
+    targets: &[MonitorCaptureTarget],
+    frames: &HashMap<String, CapturedFrame>,
+    canvas_w: u32,
+    canvas_h: u32,
+    min_x: i32,
+    min_y: i32,
+) -> Option<CapturedFrame> {
+    match mode {
+        RecordingMode::Combined => composite_frame(targets, frames, canvas_w, canvas_h, min_x, min_y)
+            .or_else(|| frames.values().next().cloned()),
+        RecordingMode::Separate => frames.values().next().cloned(),
+    }
 }
 
 fn combined_canvas(targets: &[MonitorCaptureTarget]) -> (u32, u32, i32, i32) {
