@@ -68,10 +68,10 @@
     }
     if (statusEl) {
       if (releaseUrl) {
-        statusEl.innerHTML = `Latest build from <a href="${releaseUrl}" target="_blank" rel="noopener">GitHub Releases</a>.`;
+        statusEl.innerHTML = `Current release: <a href="${releaseUrl}" target="_blank" rel="noopener">GitHub Releases</a>.`;
       } else if (!REPO) {
         statusEl.textContent =
-          "Set your repository in website/js/repo-config.js (or publish via GitHub Pages) to enable one-click downloads.";
+          "Configure the repository in website/js/repo-config.js to enable direct download links.";
       }
     }
   }
@@ -83,7 +83,7 @@
     }
 
     const statusEl = $("#download-status");
-    if (statusEl) statusEl.textContent = "Checking for the latest release…";
+    if (statusEl) statusEl.textContent = "Loading release information…";
 
     try {
       const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
@@ -104,12 +104,12 @@
       });
 
       if (!portable && !installer && statusEl) {
-        statusEl.textContent = "No release assets yet. Run the Release workflow by pushing a v* tag.";
+        statusEl.textContent = "No release packages are published yet. See GitHub Releases for updates.";
       }
     } catch {
       if (statusEl) {
         statusEl.textContent =
-          "Could not load releases from GitHub. You can still browse the repository releases page.";
+          "Release information could not be loaded. Download builds from the GitHub Releases page.";
       }
       const releasesLink = $("#releases-fallback");
       if (releasesLink && REPO) {

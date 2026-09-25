@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Monora — lightweight portable Windows screen recorder. Multi-monitor capture, system audio, hardware H.264, no FFmpeg required."
+      content="Monora is a portable screen recorder for Windows with multi-monitor capture, system and microphone audio, and H.264 MP4 export."
     />
-    <title>Monora — Screen Recorder for Windows</title>
+    <title>Monora | Screen Recorder for Windows</title>
     <link rel="icon" href="assets/monora-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="css/winclassic.css" />
   </head>
@@ -28,7 +28,7 @@
         <article class="win win--wide" id="welcome">
           <header class="titlebar">
             <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
-            <span class="titlebar-text">Monora — Simple Recorder</span>
+            <span class="titlebar-text">Monora</span>
             <div class="titlebar-controls" aria-hidden="true">
               <button type="button" class="titlebar-btn">&#8211;</button>
               <button type="button" class="titlebar-btn">&#9633;</button>
@@ -37,12 +37,13 @@
           </header>
           <div class="win-body">
             <p class="lead">
-              <strong>Record your screen like it's 2009 — encode like it's 2026.</strong>
+              <strong>Screen recording for Windows.</strong>
             </p>
             <p class="muted">
-              Monora (Simple Recorder) is a portable Windows app built with Tauri and Rust. Capture one or
-              more monitors with system audio and microphone, export H.264 + AAC MP4, and run from a folder —
-              no installer, no FFmpeg bundle, no Python runtime.
+              Monora captures one or more displays with optional system and microphone audio, encodes to
+              H.264 and AAC in MP4, and is available as a portable package or Windows installer. The
+              application is built with Tauri and Rust and does not require external encoding tools on the
+              target system.
             </p>
 
             <fieldset class="groupbox">
@@ -56,7 +57,7 @@
                   aria-disabled="true"
                   rel="noopener"
                 >
-                  Portable ZIP
+                  Portable archive
                 </a>
                 <a
                   id="download-installer"
@@ -65,12 +66,12 @@
                   aria-disabled="true"
                   rel="noopener"
                 >
-                  Setup (NSIS)
+                  Windows installer
                 </a>
               </div>
               <p class="footer-links">
                 <a id="releases-fallback" href="https://github.com" hidden>All releases</a>
-                · Requires Windows 10/11 (64-bit) and WebView2
+                · Windows 10 or 11 (64-bit). Microsoft Edge WebView2 required.
               </p>
             </fieldset>
 
@@ -103,19 +104,19 @@
               </div>
               <div class="feature-tile">
                 <strong>Hardware H.264</strong>
-                Media Foundation encoders when your GPU drivers support them; sensible software fallback.
+                Media Foundation hardware encoders when available, with a software fallback path.
               </div>
               <div class="feature-tile">
-                <strong>Portable</strong>
-                Drop the folder anywhere — settings in <code>config/</code>, logs in <code>logs/</code>.
+                <strong>Portable deployment</strong>
+                Run from any directory. Settings are stored in <code>config/</code>; logs are written to <code>logs/</code>.
               </div>
               <div class="feature-tile">
-                <strong>Tray + hotkey</strong>
-                System tray integration and global <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> to toggle recording.
+                <strong>System tray and shortcut</strong>
+                Runs in the notification area. Use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> to start or stop recording.
               </div>
               <div class="feature-tile">
                 <strong>Open source</strong>
-                MIT licensed. Built with Tauri 2, Rust, and TypeScript — contributions welcome.
+                Released under the MIT license. Source is available on GitHub.
               </div>
             </div>
           </div>
@@ -146,7 +147,7 @@
                 </tr>
                 <tr>
                   <td>Runtime</td>
-                  <td>WebView2 (usually preinstalled; bootstrapper available in installer build)</td>
+                  <td>Microsoft Edge WebView2 (bootstrapper included with the installer package)</td>
                 </tr>
                 <tr>
                   <td>Output</td>

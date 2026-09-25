@@ -27,7 +27,7 @@ pub struct AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     logging::init_logging();
-    logging::info("Simple Recorder starting");
+    logging::info("Monora starting");
 
     let saved = settings_store::load_settings();
     let mut settings = saved;
@@ -62,13 +62,13 @@ pub fn run() {
 
 fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let open_i = MenuItem::with_id(app, "open", "Open", true, None::<&str>)?;
-    let stop_i = MenuItem::with_id(app, "stop", "Stop Recording", true, None::<&str>)?;
+    let stop_i = MenuItem::with_id(app, "stop", "Stop recording", true, None::<&str>)?;
     let exit_i = MenuItem::with_id(app, "exit", "Exit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open_i, &stop_i, &exit_i])?;
 
     let _tray = TrayIconBuilder::new()
         .menu(&menu)
-        .tooltip("Simple Recorder")
+        .tooltip("Monora")
         .on_menu_event(|app, event| {
             match event.id.as_ref() {
                 "open" => {

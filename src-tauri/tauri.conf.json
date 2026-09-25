@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Monora — Simple Recorder",
+        "title": "Monora",
         "width": 400,
         "height": 620,
         "resizable": true,

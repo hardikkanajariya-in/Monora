@@ -200,9 +200,21 @@ button:disabled {
 }
 
 .recording-dot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--recording);
   font-weight: 600;
   margin-bottom: 4px;
+}
+
+.recording-dot::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
 }
 
 .recording-time {

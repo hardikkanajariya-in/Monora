@@ -143,7 +143,7 @@ function render(): void {
   title.textContent = "Monora";
   const subtitle = document.createElement("p");
   subtitle.className = "app-subtitle";
-  subtitle.textContent = "Simple Recorder";
+  subtitle.textContent = "Screen recording for Windows";
   header.append(logo, title, subtitle);
   app.appendChild(header);
 
@@ -151,7 +151,7 @@ function render(): void {
     const panel = document.createElement("div");
     panel.className = "recording-panel";
     panel.innerHTML = `
-      <div class="recording-dot">● Recording</div>
+      <div class="recording-dot">Recording</div>
       <div class="recording-time">${formatDuration(progress?.elapsed_secs ?? 0)}</div>
       <div class="recording-meta">
         ${progress?.display_count ?? settings.selected_monitor_ids.length} Display${(progress?.display_count ?? 1) !== 1 ? "s" : ""}<br/>
@@ -162,7 +162,7 @@ function render(): void {
 
     const stopBtn = document.createElement("button");
     stopBtn.className = "primary stop";
-    stopBtn.textContent = "■ STOP";
+    stopBtn.textContent = "Stop recording";
     stopBtn.disabled = status.state === "starting" || status.state === "stopping";
     stopBtn.onclick = () => void invoke("stop_recording");
     app.appendChild(stopBtn);
@@ -337,7 +337,7 @@ function render(): void {
 
   const startBtn = document.createElement("button");
   startBtn.className = "primary";
-  startBtn.textContent = "● START RECORDING";
+  startBtn.textContent = "Start recording";
   startBtn.disabled = busy || settings.selected_monitor_ids.length === 0;
   startBtn.onclick = async () => {
     try {
