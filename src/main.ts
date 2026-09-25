@@ -131,9 +131,21 @@ function render(): void {
     app.appendChild(banner);
   }
 
+  const header = document.createElement("header");
+  header.className = "app-header";
+  const logo = document.createElement("img");
+  logo.className = "app-logo";
+  logo.src = "/monora-icon.svg";
+  logo.width = 28;
+  logo.height = 28;
+  logo.alt = "";
   const title = document.createElement("h1");
-  title.textContent = "Simple Recorder";
-  app.appendChild(title);
+  title.textContent = "Monora";
+  const subtitle = document.createElement("p");
+  subtitle.className = "app-subtitle";
+  subtitle.textContent = "Simple Recorder";
+  header.append(logo, title, subtitle);
+  app.appendChild(header);
 
   if (recording || status.state === "starting") {
     const panel = document.createElement("div");

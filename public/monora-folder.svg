@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Videos folder</title>
+  <defs>
+    <linearGradient id="folder-back" x1="20" y1="40" x2="108" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffe082"/>
+      <stop offset="1" stop-color="#f9a825"/>
+    </linearGradient>
+    <linearGradient id="folder-front" x1="16" y1="52" x2="112" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffca28"/>
+      <stop offset="1" stop-color="#ef6c00"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="22" fill="#1a5fb4" opacity="0"/>
+  <path d="M16 44h36l8 10h52a8 8 0 0 1 8 8v48a10 10 0 0 1-10 10H26a10 10 0 0 1-10-10V52a8 8 0 0 1 8-8z" fill="url(#folder-back)"/>
+  <path d="M12 56h104a8 8 0 0 1 8 8v44a12 12 0 0 1-12 12H24a12 12 0 0 1-12-12V64a8 8 0 0 1 8-8z" fill="url(#folder-front)"/>
+  <circle cx="64" cy="78" r="18" fill="#163d8f" opacity="0.85"/>
+  <path d="M58 72v12l14-6z" fill="#fff"/>
+</svg>

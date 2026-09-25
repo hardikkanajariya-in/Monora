@@ -12,6 +12,12 @@ Thank you for helping improve Monora (Simple Recorder). This project is a Tauri 
    npm run tauri dev
    ```
 
+After editing the logo SVG (`assets/brand/monora-icon.svg`), regenerate platform icons with:
+
+```bash
+npm run icons
+```
+
 ## Pull requests
 
 1. Open an issue for large changes so we can align on approach.

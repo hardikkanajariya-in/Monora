@@ -1,5 +1,9 @@
 # Monora (Simple Recorder)
 
+<p align="center">
+  <img src="assets/brand/monora-icon.svg" width="96" height="96" alt="Monora logo" />
+</p>
+
 [![CI](https://github.com/YOUR_GITHUB_USERNAME/Monora/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/Monora/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-245edc)](https://YOUR_GITHUB_USERNAME.github.io/Monora/)

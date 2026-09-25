@@ -8,18 +8,18 @@
       content="Monora — lightweight portable Windows screen recorder. Multi-monitor capture, system audio, hardware H.264, no FFmpeg required."
     />
     <title>Monora — Screen Recorder for Windows</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23c92a2a' width='32' height='32' rx='4'/><circle fill='%23fff' cx='16' cy='16' r='6'/></svg>" />
+    <link rel="icon" href="assets/monora-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="css/winclassic.css" />
   </head>
   <body>
     <div class="desktop">
       <div class="desktop-icons" aria-hidden="true">
         <div class="desktop-icon">
-          <div class="desktop-icon__img"></div>
+          <img class="desktop-icon__img" src="assets/monora-icon.svg" width="32" height="32" alt="" />
           Monora
         </div>
         <div class="desktop-icon">
-          <div class="desktop-icon__img" style="background: linear-gradient(145deg, #ffd43b, #e67700)"></div>
+          <img class="desktop-icon__img" src="assets/monora-folder.svg" width="32" height="32" alt="" />
           Videos
         </div>
       </div>
@@ -27,7 +27,7 @@
       <main>
         <article class="win win--wide" id="welcome">
           <header class="titlebar">
-            <span class="titlebar-icon" aria-hidden="true"></span>
+            <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">Monora — Simple Recorder</span>
             <div class="titlebar-controls" aria-hidden="true">
               <button type="button" class="titlebar-btn">&#8211;</button>
@@ -83,7 +83,7 @@
 
         <article class="win" id="features">
           <header class="titlebar">
-            <span class="titlebar-icon" aria-hidden="true"></span>
+            <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">Features</span>
             <div class="titlebar-controls" aria-hidden="true">
               <button type="button" class="titlebar-btn">&#8211;</button>
@@ -123,7 +123,7 @@
 
         <article class="win" id="specs">
           <header class="titlebar">
-            <span class="titlebar-icon" aria-hidden="true"></span>
+            <img class="titlebar-icon" src="assets/monora-icon.svg" width="16" height="16" alt="" />
             <span class="titlebar-text">System requirements</span>
             <div class="titlebar-controls" aria-hidden="true">
               <button type="button" class="titlebar-btn">&#8211;</button>
@@ -164,7 +164,10 @@
     </div>
 
     <nav class="start-menu" id="start-menu" aria-label="Start menu">
-      <div class="start-menu-header">Monora</div>
+      <div class="start-menu-header">
+        <img src="assets/monora-icon.svg" width="24" height="24" alt="" class="start-menu-logo" />
+        Monora
+      </div>
       <div class="start-menu-items">
         <button type="button" data-scroll="welcome">Download</button>
         <button type="button" data-scroll="features">Features</button>
@@ -178,7 +181,10 @@
         Start
       </button>
       <div class="taskbar-pins">
-        <span class="taskbar-pin">Monora</span>
+        <span class="taskbar-pin">
+          <img src="assets/monora-icon.svg" width="16" height="16" alt="" class="taskbar-pin-icon" />
+          Monora
+        </span>
       </div>
       <div class="taskbar-tray">
         <span id="taskbar-clock">12:00 PM</span>
